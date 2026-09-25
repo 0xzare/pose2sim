@@ -87,6 +87,10 @@ jobs:
           path: release-files
           merge-multiple: true
 
+      - name: List files to publish
+        run: ls -R release-files
+        shell: bash
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
@@ -94,7 +98,11 @@ jobs:
           name: Pose2Sim GUI v0.1.${{ github.run_number }}
           body: |
             Automatic GUI build from main (${{ github.sha }}).
-            - Windows: run `Pose2Sim-Setup-*.exe`, or unzip `Pose2Sim-win64.zip` for the portable folder.
+            - Windows: run the `Pose2Sim-Setup-*.exe` installer, or unzip `Pose2Sim-win64.zip` for the portable folder.
             - macOS: open `Pose2Sim-macOS.dmg` and drag Pose2Sim to Applications.
           prerelease: true
-          files: release-files/*
+          fail_on_unmatched_files: true
+          files: |
+            release-files/**/*.zip
+            release-files/**/*.exe
+            release-files/**/*.dmg
