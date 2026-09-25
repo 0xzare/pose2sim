@@ -97,9 +97,59 @@ jobs:
           tag_name: gui-v0.1.${{ github.run_number }}
           name: Pose2Sim GUI v0.1.${{ github.run_number }}
           body: |
-            Automatic GUI build from main (${{ github.sha }}).
-            - Windows: run the `Pose2Sim-Setup-*.exe` installer, or unzip `Pose2Sim-win64.zip` for the portable folder.
-            - macOS: open `Pose2Sim-macOS.dmg` and drag Pose2Sim to Applications.
+            ## 📦 Pose2Sim GUI v0.1.${{ github.run_number }}
+
+            **EN** · [فارسی ↓](#-نسخهی-فارسی)
+
+            ### ⬇️ Download
+
+            | File | For |
+            |---|---|
+            | `Pose2Sim-Setup-*.exe` | 🪟 Windows 10/11 — recommended installer |
+            | `Pose2Sim-win64.zip` | 🪟 Windows portable, no install needed |
+            | `Pose2Sim-macOS.dmg` | 🍎 macOS (Apple Silicon) |
+
+            ### 🪟 Install on Windows
+
+            1. Download and run `Pose2Sim-Setup-*.exe`.
+            2. If SmartScreen warns (builds are not code-signed yet), click **More info → Run anyway**.
+            3. Pick your project folder, tick the pipeline steps, press **Run**.
+
+            ### 🍎 Install on macOS
+
+            1. Open `Pose2Sim-macOS.dmg` and drag **Pose2Sim** into Applications.
+            2. First launch: right-click → **Open** (unsigned build), then confirm.
+
+            ### ℹ️ Notes
+
+            - Automatic build from `main` (`${{ github.sha }}`) — pre-release, may have rough edges.
+            - Full pipeline included: calibration → pose estimation → sync → triangulation → filtering → OpenSim kinematics.
+            - Everything runs locally on your machine — no account, no cloud.
+            - Found a bug? [Open an issue](https://github.com/0xzare/pose2sim/issues) and paste the log text.
+
+            ---
+            ### 🇮🇷 نسخه‌ی فارسی
+
+            ### ⬇️ دانلود
+
+            | فایل | برای |
+            |---|---|
+            | `Pose2Sim-Setup-*.exe` | 🪟 ویندوز ۱۰/۱۱ — نصب پیشنهادی |
+            | `Pose2Sim-win64.zip` | 🪟 ویندوز پرتابل، بدون نصب |
+            | `Pose2Sim-macOS.dmg` | 🍎 مک (اپل سیلیکون) |
+
+            ### 🪟 نصب روی ویندوز
+
+            1. فایل ستاپ رو دانلود و اجرا کن.
+            2. اگه اسمارت‌اسکرین گیر داد (بیلدها امضا ندارن)، **More info ← Run anyway**.
+            3. پوشه‌ی پروژه رو بده، مرحله‌ها رو تیک بزن، **اجرا** رو بزن.
+
+            ### 🍎 نصب روی مک
+
+            1. dmg رو باز کن و Pose2Sim رو بنداز توی Applications.
+            2. بار اول: راست‌کلیک ← **Open**، بعد تأیید کن.
+
+            باگ دیدی؟ [ایشو باز کن](https://github.com/0xzare/pose2sim/issues) و متن لاگ رو بفرست.
           prerelease: true
           fail_on_unmatched_files: true
           files: |
