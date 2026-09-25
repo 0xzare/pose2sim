@@ -1,0 +1,100 @@
+# Build the Pose2Sim desktop GUI (PyInstaller) on Windows + macOS
+# and publish the installers to GitHub Releases on every push to main.
+name: GUI release build
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "GUI/**"
+      - "packaging/**"
+      - "pyproject.toml"
+      - ".github/workflows/gui-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gui-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: win
+          - os: macos-latest
+            artifact: mac
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: Install Pose2Sim + PyInstaller
+        run: uv pip install --system -e .[gui] pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller packaging/pose2sim.spec --noconfirm --clean
+        shell: bash
+
+      - name: Build Windows installer (Inno Setup)
+        if: matrix.artifact == 'win'
+        shell: powershell
+        run: |
+          choco install innosetup -y
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" packaging\windows_installer.iss
+          Compress-Archive -Path dist\Pose2Sim\* -DestinationPath dist\Pose2Sim-win64.zip
+
+      - name: Build macOS disk image
+        if: matrix.artifact == 'mac'
+        shell: bash
+        run: |
+          hdiutil create -volname Pose2Sim -srcfolder dist/Pose2Sim.app \
+            -ov -format UDZO dist/Pose2Sim-macOS.dmg
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pose2Sim-${{ matrix.artifact }}
+          path: |
+            dist/Pose2Sim-win64.zip
+            dist-installer/Pose2Sim-Setup-*.exe
+            dist/Pose2Sim-macOS.dmg
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-files
+          merge-multiple: true
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: gui-v0.1.${{ github.run_number }}
+          name: Pose2Sim GUI v0.1.${{ github.run_number }}
+          body: |
+            Automatic GUI build from main (${{ github.sha }}).
+            - Windows: run `Pose2Sim-Setup-*.exe`, or unzip `Pose2Sim-win64.zip` for the portable folder.
+            - macOS: open `Pose2Sim-macOS.dmg` and drag Pose2Sim to Applications.
+          prerelease: true
+          files: release-files/*
